@@ -9,10 +9,10 @@ import java.util.Objects;
 public class NotificationTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private int id;
 
     @Column(name = "chat_id", nullable = false)
-    private long chatId;
+    private int chatId;
 
     @Column(nullable = false)
     private String message;
@@ -23,19 +23,19 @@ public class NotificationTask {
     public NotificationTask() {
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public long getChatId() {
+    public int getChatId() {
         return chatId;
     }
 
-    public void setChatId(long chatId) {
+    public void setChatId(int chatId) {
         this.chatId = chatId;
     }
 
