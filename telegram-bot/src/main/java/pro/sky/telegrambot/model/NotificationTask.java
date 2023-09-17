@@ -23,6 +23,12 @@ public class NotificationTask {
     public NotificationTask() {
     }
 
+    public NotificationTask(long chatId, String message, LocalDateTime notifyTime) {
+        this.chatId = chatId;
+        this.message = message;
+        this.notifyTime = notifyTime;
+    }
+
     public int getId() {
         return id;
     }
