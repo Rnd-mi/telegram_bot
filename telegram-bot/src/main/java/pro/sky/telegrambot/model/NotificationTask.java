@@ -12,7 +12,7 @@ public class NotificationTask {
     private int id;
 
     @Column(name = "chat_id", nullable = false)
-    private int chatId;
+    private long chatId;
 
     @Column(nullable = false)
     private String message;
@@ -31,11 +31,11 @@ public class NotificationTask {
         this.id = id;
     }
 
-    public int getChatId() {
+    public long getChatId() {
         return chatId;
     }
 
-    public void setChatId(int chatId) {
+    public void setChatId(long chatId) {
         this.chatId = chatId;
     }
 
