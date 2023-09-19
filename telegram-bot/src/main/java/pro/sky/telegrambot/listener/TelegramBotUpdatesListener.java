@@ -25,17 +25,15 @@ import java.util.regex.Pattern;
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
-    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     @Autowired
     private NotificationTaskRepository taskRepository;
 
-    private Pattern pattern = Pattern
+    private final Pattern pattern = Pattern
             .compile("(\\d{2}\\.\\d{2}\\.\\d{4}\\s\\d{2}:\\d{2})\\s([a-zA-zа-яА-я\\s\\,\\.[0-9]]+)*");
 
-    private Matcher matcher;
-
-    private String patternExample = "Example: 04.11.2023 08:00 Water the flowers";
+    private final String patternExample = "Example: 04.11.2023 08:00 Water the flowers";
 
     @Autowired
     private TelegramBot telegramBot;
@@ -56,6 +54,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
+    /**
+     * Method that greets user on "/start"
+     * @param update
+     * @return true if user sent "/start" and false if not
+     */
     private boolean greetUserOnStart(Update update) {
         if (update.message().text().equals("/start")) {
             long chatId = update.message().chat().id();
@@ -67,8 +70,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return false;
     }
 
+    /**
+     * Saves message from user to DB
+     * @param update
+     * @return true if message matches pattern even if parsing fails, and false if message doesn't match
+     */
     private boolean saveMessage(Update update) {
-        matcher = pattern.matcher(update.message().text());
+        Matcher matcher = pattern.matcher(update.message().text());
         long chatId = update.message().chat().id();
         if (matcher.matches()) {
             try {
@@ -94,6 +102,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return false;
     }
 
+    /**
+     * Sends notification and then deletes it from DB
+     */
     @Scheduled(cron = "0 0/1 * * * *")
     public void checkTasks() {
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
