@@ -27,13 +27,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
-    @Autowired
-    private NotificationTaskRepository taskRepository;
-
     private final Pattern pattern = Pattern
             .compile("(\\d{2}\\.\\d{2}\\.\\d{4}\\s\\d{2}:\\d{2})\\s([a-zA-zа-яА-я\\s\\,\\.[0-9]]+)*");
 
     private final String patternExample = "Example: 04.11.2023 08:00 Water the flowers";
+
+    @Autowired
+    private NotificationTaskRepository taskRepository;
 
     @Autowired
     private TelegramBot telegramBot;
@@ -73,7 +73,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
      * Saves message from user to DB
      * @param update
-     * @return true if message matches pattern even if parsing fails, and false if message doesn't match
+     * @return true if message matches the pattern and if it was successfully saved.
+     * False if message doesn't match or if date is incorrect and hasn't been saved.
      */
     private boolean saveMessage(Update update) {
         Matcher matcher = pattern.matcher(update.message().text());
