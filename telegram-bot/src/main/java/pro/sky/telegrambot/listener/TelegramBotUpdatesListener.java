@@ -32,11 +32,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final String patternExample = "Example: 04.11.2023 08:00 Water the flowers";
 
-    @Autowired
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     private NotificationTaskRepository taskRepository;
 
-    @Autowired
     private TelegramBot telegramBot;
+
+    public TelegramBotUpdatesListener(TelegramBot telegramBot,
+                                      NotificationTaskRepository taskRepository) {
+        this.telegramBot = telegramBot;
+        this.taskRepository = taskRepository;
+    }
 
     @PostConstruct
     public void init() {
@@ -47,6 +53,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
+            if (checkForNonStringInput(update.message().text(), update.message().chat().id())) {
+                return;
+            }
             if (!greetUserOnStart(update)) {
                 saveMessage(update);
             }
@@ -60,8 +69,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @return true if user sent "/start" and false if not
      */
     private boolean greetUserOnStart(Update update) {
-        if (update.message().text().equals("/start")) {
-            long chatId = update.message().chat().id();
+        long chatId = update.message().chat().id();
+        String text = update.message().text();
+        if (text.equals("/start")) {
             telegramBot.execute(new SendMessage(chatId, "Hi there! It's notification bot. " +
                     "I'll notify you when it's time to do a task.\n" +
                     "Type info about your task: date, time, text.\n" + patternExample));
@@ -72,19 +82,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /**
      * Saves message from user to DB
+     *
      * @param update
      * @return true if message matches the pattern and if it was successfully saved.
      * False if message doesn't match or if date is incorrect and hasn't been saved.
      */
     private boolean saveMessage(Update update) {
-        Matcher matcher = pattern.matcher(update.message().text());
         long chatId = update.message().chat().id();
+        String text = update.message().text();
+        Matcher matcher = pattern.matcher(text);
         if (matcher.matches()) {
             try {
                 LocalDateTime time = LocalDateTime
-                        .parse(matcher.group(1), DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+                        .parse(matcher.group(1), formatter);
                 taskRepository.save(new NotificationTask(
-                        update.message().chat().id(),
+                        chatId,
                         matcher.group(2),
                         time
                 ));
@@ -115,5 +127,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             telegramBot.execute(new SendMessage(task.getChatId(), task.getMessage()));
             taskRepository.delete(task);
         }
+    }
+
+    private boolean checkForNonStringInput(String input, long chatId) {
+        if (input == null) {
+            telegramBot.execute(new SendMessage(chatId, "I can only save text messages"));
+            return true;
+        }
+        return false;
     }
 }
