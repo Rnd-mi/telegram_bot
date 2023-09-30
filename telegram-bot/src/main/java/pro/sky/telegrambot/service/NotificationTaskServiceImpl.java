@@ -97,6 +97,7 @@ public class NotificationTaskServiceImpl implements NotificationTaskService {
                     new SendMessage(chatId, "Something went wrong.\n" + patternExample)
             );
         }
+        logger.info("Message is incorrect");
         return false;
     }
 
