@@ -1,5 +1,5 @@
 # Telegram bot that sends notifications
-https://t.me/hwNotifierBot
+[https://t.me/hwNotifierBot]
 
 Educational telegram bot based on pengrad java telegram bot api.
 
