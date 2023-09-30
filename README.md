@@ -1,4 +1,4 @@
-# Telegram bot that sends notifications
+# Telegram reminder bot
 https://t.me/hwNotifierBot
 
 Overview
